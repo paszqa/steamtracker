@@ -11,8 +11,6 @@ filename=$steamId/site_$currentDate.xml
 filenameTemp=$steamId/tmp_$currentDate.xml
 #Filesystem ops
 mkdir -p $steamId
-rm -f report
-touch report
 curl "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=EB73438BE5A148D08473BFDFC8D6EEBC&steamid=$steamId&format=xml&include_appinfo=1&include_played_free_games=1" > $filename
 #REMOVE NEWLINES AND TABS AND SHIT
 cat $filename |grep -ivE "xml version|game_count|response>|<games>|</games>|<message>"|tr -d '\n'|tr -d '\t' > $filenameTemp
