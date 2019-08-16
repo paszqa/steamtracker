@@ -60,12 +60,12 @@ while read line; do
 
 		filenamePrev="$pathToScript/users/$steamId/$appId/$previousDate"
                 if [ -f "$filenamePrev" ]; then
-                        yesterdayGameTime=$(cat $filenamePrev| awk -F";" '{ print $2 }')
+                        yesterdayGameTime=$(cat $filenamePrev| awk -F";" '{ print $3 }')
                 else
                         yesterdayGameTime=0
                 fi
-		echo "$todayGameTime - $yesterdayGameTime"
-		echo "$todayGameTime - $yesterdayGameTime" | bc
+#		echo "$todayGameTime - $yesterdayGameTime"
+#		echo "$todayGameTime - $yesterdayGameTime" | bc
                 playedTodayOnly=$(echo "$todayGameTime - $yesterdayGameTime" | bc)
 
                 #write game info
