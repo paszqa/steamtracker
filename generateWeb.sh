@@ -19,6 +19,7 @@ echo '<html><meta charset="UTF-8"><head><style>' >>  "/var/www/html/steamtracker
 echo "body { font-family: Calibri, Arial; }" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "table{ border: 2px solid #777; border-collapse: collapse; background-color: #c5c5c5;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "td{ border: 2px solid #777;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+echo "th{ border: 2px solid #000;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "th.firstrow{ background-color: #e67300; text-align: center;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "th.firstrow:hover{  background-color: #e67333;}">>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "td.id{ background-color: #ffd9b3;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
@@ -36,7 +37,7 @@ echo "<body>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "<p>Username: $(tail -1 $pathToScript/users/$steamId/userinfo.txt | awk -F';' '{print $2}')</p>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "<p>Date joined: $dateJoined</p>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "<table id=\"myTable\"><tr>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
-echo "<th class='firstrow' style='width:50px;'>ID</th><th class='firstrow' style='width: 200px;'>Game</th>">>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+echo "<th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable(0,'asc',1); this.id='B';}else{sortTable(0,'desc',1); this.id='A';}\" style='width:50px;'>ID</th><th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable(1,'asc',0); this.id='B';}else{sortTable(1,'desc',0); this.id='A';}\" style='width: 200px;'>Game</th>">>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 dateArray=()
 for i in $(seq 0 $lastDays); do
 	temp=$(($lastDays - $i))
@@ -44,11 +45,14 @@ for i in $(seq 0 $lastDays); do
 
 	dateArray+=("$thisDate")
 	if [ $(date -d $thisDate +%s) -ge $(date -d $dateJoined +%s) ]; then
-		echo "<th class='firstrow' onclick=\"sortTable($(($i + 1)))\">$thisDate</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+		echo "<th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable($(($i+2)),'asc',1); this.id='B';}else{sortTable($(($i+2)),'desc',1); this.id='A';}\">$thisDate</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+	fi
+	if [ $i == $lastDays ]; then
+		echo "<th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable($(($i+3)),'asc',1); this.id='B';}else{sortTable($(($i+3)),'desc',1); this.id='A';}\">RECENT TOTAL</th></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 	fi
 done
-echo "<th class='firstrow'>RECENT TOTAL</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
-echo "</tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+#echo "<th class='firstrow'>RECENT TOTAL</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
+#echo "</tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 #echo "</table>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 
 #echo "</body></html>"  >>  /var/www/html/steamtracker/$steamName-$steamId.html
@@ -138,7 +142,7 @@ done
 
 echo "</table>" >>  "/var/www/html/steamtracker/$steamName-$steamId.html"
 echo "<script>
-function sortTable(r) {
+function sortTable(r,order,numbers) {
   var table, rows, switching, i, x, y, shouldSwitch;
   table = document.getElementById(\"myTable\");
   switching = true;
@@ -158,11 +162,51 @@ function sortTable(r) {
       x = rows[i].getElementsByTagName(\"TD\")[r];
       y = rows[i + 1].getElementsByTagName(\"TD\")[r];
       //check if the two rows should switch place:
-      if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-        //if so, mark as a switch and break the loop:
-        shouldSwitch = true;
-        break;
-      }
+	if (order == \"asc\"){
+		if (numbers == 0){
+	       		if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+ 			//if so, mark as a switch and break the loop:
+			shouldSwitch = true;
+			break;
+	          	}
+		}
+		else{
+			if (Number(x.innerHTML.split(' ')[0]) > Number(y.innerHTML.split(' ')[0])) {
+				//if so, mark as a switch and break the loop:
+				shouldSwitch = true;
+				break;
+			}
+
+		}
+	}
+	else{
+		if (numbers == 0){
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        //if so, mark as a switch and break the loop:
+                        shouldSwitch = true;
+                        break;
+                        }
+                }
+                else{
+			if (Number(x.innerHTML.split(' ')[0]) < Number(y.innerHTML.split(' ')[0])) {
+                                //if so, mark as a switch and break the loop:
+                                shouldSwitch = true;
+                                break;
+                        }
+
+                }
+
+
+
+
+
+
+         }
+
+
+
+
+
     }
     if (shouldSwitch) {
       /*If a switch has been marked, make the switch
