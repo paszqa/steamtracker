@@ -30,8 +30,8 @@ height: 100%;
 	    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#faf4ed', endColorstr='#a85c00', GradientType=0 );
 }" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "div.main { width:100%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-echo "div.leftmain { display: inline-block; border: 0px solid transparent; width: 70%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-echo "div.rightmain { display: inline-block; border: 0px solid transparent; width: 29%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "div.leftmain { vertical-align: top; display: inline-block; border: 0px solid transparent; width: 70%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "div.rightmain { vertical-align: top; display: inline-block; border: 0px solid transparent; width: 29%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "div.userinfo { margin-left: 2%; width: 95%; border-radius: 10px; padding: 15px 15px 15px 15px; 
 background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,174,75,1)), color-stop(17%, rgba(247,228,207,1)), color-stop(34%, rgba(255,174,75,1)), color-stop(100%, rgba(168,92,0,1)));
 background: -webkit-linear-gradient(left, rgba(255,174,75,1) 0%, rgba(247,228,207,1) 17%, rgba(255,174,75,1) 34%, rgba(168,92,0,1) 100%);
@@ -41,9 +41,10 @@ background: linear-gradient(to right, rgba(255,174,75,1) 0%, rgba(247,228,207,1)
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffae4b', endColorstr='#a85c00', GradientType=1 );
 }
 " >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-echo "div.username { font-size: 35px; text-shadow: 2px 2px #444; width: 100%;}" >> "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "div.username { font-size: 35px; color: white; text-shadow: 2px 2px #444; width: 100%;}" >> "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "div.datejoined { color: #999; font-size: 20px; width: 50%;}" >> "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "table{ width: 100%; border: 2px solid transparent; border-collapse: separate; background-color: #fff; border-spacing: 3px;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "table.top5{ width: 80%;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "td{ text-align: center; border: 0px solid #777; border-radius: 5px;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "th{ border: 0px solid #000; border-radius: 5px; -o-transition:.5s; -ms-transition:.5s; -moz-transition:.5s; -webkit-transition:.5s; transition:.5s;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "th:hover{ -o-transition:.5s; -ms-transition:.5s; -moz-transition:.5s; -webkit-transition:.5s; transition:.5s;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
@@ -52,6 +53,7 @@ echo "th.firstrow:hover{ background-color: #ffc266;}">>  "/var/www/html/steamtra
 echo "th.dates{ background-color: #e68a00; text-align: center; width: 40px;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "th.dates:hover{ background-color: #ffc266; text-align: center; width: 40px;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "td {  -o-transition:.5s; -ms-transition:.5s; -moz-transition:.5s; -webkit-transition:.5s; transition:.5s;}">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "td#larger{ font-size: 25px; }" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "td:hover {  -o-transition:.5s; -ms-transition:.5s; -moz-transition:.5s; -webkit-transition:.5s; transition:.5s;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "td.id{ background-color: #ffd9b3;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "td.id:hover{ background-color: #fff2e6;}" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
@@ -126,16 +128,19 @@ fi
 #GENERATE RAW DATA
 for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
 	if [ $(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F';' '{print $3}') -gt 0 ]; then
-		echo -n "$appId;$(cat $pathToScript/users/$steamId/$appId/info.txt);" >> "/var/www/html/steamtracker/$steamName-$steamId-raw.php"
+		echo -n "$appId;$(cat $pathToScript/users/$steamId/$appId/info.txt);$(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F';' '{print $3}');" >> "/var/www/html/steamtracker/$steamName-$steamId-raw.php"
 		recentPlayedTotal=0
         for i in $(seq 0 $lastDays); do
 			if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
 				if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
-					timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $2}')
+					timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F";" '{print $2}')
+#					totalTimePlayed=$(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F";" '{print $3}')
 					if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
 						recentPlayedTotal=$(($recentPlayedTotal + $timePlayed))
 					fi
-					echo -n "$timeplayed;" >>  "/var/www/html/steamtracker/$steamName-$steamId-raw.php"
+#					cat $pathToScript/users/$steamId/$appId/${dateArray[i]}
+#					echo "RAW.... tp:$timePlayed steamName:$steamName steamId:$steamId "
+					echo -n "$timePlayed;" >>  "/var/www/html/steamtracker/$steamName-$steamId-raw.php"
 				else
 					echo -n "N/A;" >>  "/var/www/html/steamtracker/$steamName-$steamId-raw.php"
 				fi
@@ -147,12 +152,20 @@ for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
 done
 
 
+#GET TOP 5 MOST PLAYED OVERALL
+echo "" > $pathToScript/users/$steamId/top5-ever.txt
+cat /var/www/html/steamtracker/$steamName-$steamId-raw.php | sort -t';' -k3 -r -n >> $pathToScript/users/$steamId/top5-ever.txt
+
+#GET TOP 5 FROM EACH MONTH
+
 #while read line; do
 	#appId=$(echo $line | awk -F";" '{print $1)')
 	#gamename=$(echo $line | awk -F";" '{print $2)')
 	#echo "<tr><td class='id'>$appId</td><td class='game'>$gamename</td>"
 #done < /var/www/html/steamtracker/$steamName-$steamId-raw.php
 	
+
+#BUILD UI
 for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
 	if [ $(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F';' '{print $3}') -gt 0 ]; then
 		#echo -n "$appId;$(cat $pathToScript/users/$steamId/$appId/info.txt);"
@@ -171,7 +184,7 @@ for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
 		done
 		
 		if [ $recentPlayedTotal -gt 0 ]; then
-			echo "<tr><td class='id'>$appId</td><td class='game'>$(cat $pathToScript/users/$steamId/$appId/info.txt)</td>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+			echo "<tr><td class='id'>$appId</td><td class='game'><img src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"></td>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 			for i in $(seq 0 $lastDays); do
 				if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
 					if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
@@ -232,7 +245,64 @@ echo "</table></div><div class='rightmain'>" >>  "/var/www/html/steamtracker/$st
 
 echo "<div class='userinfo'><div class='username'>$(tail -1 $pathToScript/users/$steamId/userinfo.txt | awk -F';' '{print $2}')</div>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "<div class='datejoined'>Joined @ $dateJoined</div></div>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#BUILD TOP 5 OVERALL
+echo "<br>TOP 5 OVERALL<br>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "<table class='top5'>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+counter=0
+while read i; do #for i in $(cat /var/www/html/steamtracker/$steamId/top5-ever.txt | head -5); do
+	counter=$(($counter + 1))
+#	echo "<tr><td>$i</td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+	if [[ $i != "" ]]; then
+		appId=$(echo $i|awk -F';' '{print $1}')
+		gameName=$(echo $i|awk -F';' '{print $2}')
+		timePlayed=$(echo $i|awk -F';' '{print $3}')
 
+
+                if [ $timePlayed -gt 30000 ]; then
+                tdclass="veryhigh"
+                elif [ $timePlayed -gt 6000 ]; then
+                tdclass="high"
+                elif [ $timePlayed -gt 300 ]; then
+                tdclass="medium"
+                elif [ $timePlayed -gt 0 ]; then
+                tdclass="low"
+                else
+                tdclass="zero"
+                fi
+
+		echo "<tr><td class='game'><img src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+	fi
+	if [ $counter -gt 5 ]; then
+		break
+	fi
+done < $pathToScript/users/$steamId/top5-ever.txt
+echo "</table>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#BUILD TOP 5 each month
+echo "<br>TOP 5 MONTH<br>">> "/var/www/html/steamtracker/$steamName-$steamId.php"
+echo "<table class='top5'>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+while read i; do
+	#for i in $(cat /home/osmc/git/steamtracker/users/$steamId/$steamName-$steamId-top5-ever.txt | sort -t';' -k3 -r -n| head -1); do
+	if [[ $i != "" ]]; then
+		appId=$(echo $i|awk -F';' '{print $1}')
+		gameName=$(echo $i|awk -F';' '{print $2}')
+		timePlayed=$(echo $i|awk -F';' '{print $3}')
+                if [ $timePlayed -gt 6000 ]; then
+                tdclass="veryhigh"
+                elif [ $timePlayed -gt 2000 ]; then
+                tdclass="high"
+                elif [ $timePlayed -gt 300 ]; then
+                tdclass="medium"
+                elif [ $timePlayed -gt 0 ]; then
+                tdclass="low"
+                else
+                tdclass="zero"
+                fi
+		echo "<tr><td class='game'><img src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+
+#		echo "<tr><td>$appId</td><td>$gameName</td><td>$gameTime</td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+	fi
+done < /home/osmc/git/steamtracker/users/$steamId/2019-08-top5.txt
+echo "</table>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "</div></div>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "<script>
 function sortTable(r,order,numbers) {
