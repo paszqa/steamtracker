@@ -115,8 +115,8 @@ for i in $(seq 0 $lastDays); do
 	fi
 
 	if [ $i == $lastDays ]; then
-		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+2)),'desc',1); this.id='A';}\">PLAYED<br>RECENTLY</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+2)),'asc',1); this.id='B';}else{sortTable($(($whichtable+3)),'desc',1); this.id='A';}\">PLAYED<br>TOTAL </th></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+1)),'desc',1); this.id='A';}\">PLAYED<br>RECENTLY</th>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+2)),'asc',1); this.id='B';}else{sortTable($(($whichtable+2)),'desc',1); this.id='A';}\">PLAYED<br>TOTAL </th></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 	fi
 		
 done
@@ -163,8 +163,15 @@ done
 
 
 #GET TOP 5 MOST PLAYED OVERALL
-echo "" > $pathToScript/users/$steamId/top5-ever.txt
-cat /var/www/html/steamtracker/$steamName-$steamId-raw.php | sort -t';' -k3 -r -n >> $pathToScript/users/$steamId/top5-ever.txt
+#SELECT * FROM (SELECT `id`,MAX(date),`appid`,`playedtotal` FROM `trackedtimes`.`76561198000030995` GROUP BY `appid`) tmp ORDER BY `playedtotal` DESC
+echo -n "" > $pathToScript/users/$steamId/top5-ever.txt
+#mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT `id`,MAX(date),`appid`,`playedtotal` FROM `trackedtimes`.`$steamId` GROUP BY `appid`) tmp ORDER BY `playedtotal` DESC LIMIT 5" | awk -F\\t '{print "\""$1"\";"$2";"$3"}'
+#mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`76561198000030995\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" | awk -F\\t '{print ""$3";;"$4}'
+mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`76561198000030995\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" trackedtimes | grep -vi 'id' | awk -F\\t '{print ""$3";;"$4";"}' >> $pathToScript/users/$steamId/top5-ever.txt
+
+
+
+#cat /var/www/html/steamtracker/$steamName-$steamId-raw.php | sort -t';' -k3 -r -n >> $pathToScript/users/$steamId/top5-ever.txt
 
 #GET TOP 5 FROM EACH MONTH
 
@@ -176,75 +183,132 @@ cat /var/www/html/steamtracker/$steamName-$steamId-raw.php | sort -t';' -k3 -r -
 	
 
 #BUILD UI
-for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
-	if [ $(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F';' '{print $3}') -gt 0 ]; then
-		#echo -n "$appId;$(cat $pathToScript/users/$steamId/$appId/info.txt);"
-		totalPlayed=0
-		recentPlayedTotal=0
-		#count Recent played to decide if game should be printed
-		for i in $(seq 0 $lastDays); do
-			if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
-				if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
-					if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
-							timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $2}')
-							recentPlayedTotal=$(($recentPlayedTotal + $timePlayed))
-					fi
-				fi
+#mysql -u loser -pDupa1234 -e "SELECT DISTINCT \`appid\` FROM \`76561198000030995\` WHERE \`date\` > '2019-08-13' AND \`playedtoday\` > 0" trackedtimes
+for appId in $(mysql -u loser -pDupa1234 -e "SELECT DISTINCT \`appid\` FROM \`$steamId\` WHERE \`date\` >= '$firstDate' AND \`playedtoday\` ORDER BY \`playedtotal\`" trackedtimes | grep -vi 'id'); do
+	echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+	recentPlayedTotal=0
+	for i in $(seq 0 $lastDays); do
+		if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
+			#echo "mysql -u loser -pDupa1234 -e SELECT * FROM \`$steamId\` WHERE \`date\` >= '$firstDate' AND \`appid\` = $appId trackedtimes | grep -vi 'id'| awk -F\\t '{print $5}'"
+			timePlayed=$(mysql -u loser -pDupa1234 -e "SELECT * FROM \`$steamId\` WHERE \`date\` = '${dateArray[i]}' AND \`appid\` = $appId" trackedtimes | grep -vi 'id' | awk -F\\t '{print $5}')
+			#echo "---TPA1--"
+			#echo "TPA: $timePlayedArray"
+			#echo "---TPA---"
+
+			#for timePlayed in $(echo $timePlayedArray); do
+			#echo "RPT+TP:$recentPlayedTotal + $timePlayed"
+			echo "TP:$timePlayed"
+			#echo "--"
+			if [[ $timePlayed -eq "" ]]; then
+				timePlayed=0
 			fi
-		done
-		
-		if [ $recentPlayedTotal -gt 0 ]; then
-			#echo "<tr><td class='id'>$appId</td>"
-			echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-			for i in $(seq 0 $lastDays); do
-				if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
-					if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
-						timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $2}')
-						totalPlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $3}')
-						if [ ${dateArray[i]} == $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
-							tdclass="low"
-						elif [ $timePlayed -gt 179 ]; then
-							tdclass="veryhigh"
-						elif [ $timePlayed -gt 119 ]; then
-							tdclass="high"
-									elif [ $timePlayed -gt 59 ]; then
-											tdclass="medium"
-						elif [ $timePlayed -gt 0 ]; then
-							tdclass="low"
-						else
-							tdclass="zero"
-						fi
-
-						#if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
-							#=$(($recentPlayedTotal + $timePlayed))
-						#fi
-						echo -n "<td class='$tdclass'><?php echo round($timePlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-					else
-
-						echo "<td class='na'>N/A</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-					fi
-				elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then
-					echo "<td class='joined'>Joined!</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-				else
-					echo "<td class='na'>N/A</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-				fi
-			done
-
-			echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-			echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
-
-			echo "</tr>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+			recentPlayedTotal=$(($recentPlayedTotal + $timePlayed))
+			if [ ${dateArray[i]} == $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
+	                       	tdclass="low"
+	                elif [ $timePlayed -gt 179 ]; then
+	                       	tdclass="veryhigh"
+	                elif [ $timePlayed -gt 119 ]; then
+	                     	tdclass="high"
+	                elif [ $timePlayed -gt 59 ]; then
+	                       	tdclass="medium"
+	                elif [ $timePlayed -gt 0 ]; then
+	                      	tdclass="low"
+	                else
+	                       	tdclass="zero"
+	                fi
+			echo -n "<td class='$tdclass'><?php echo round($timePlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+			#echo "<td>$timePlayed ;$i</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+			#done
+		elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then
+			#print "joined!!"
+			echo "<td class='joined'>Joined!</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+		else
+			#print n/a
+			echo "<td class='na'>N/A</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 		fi
-	fi
+	done
+        echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+	totalPlayed=$(mysql -u loser -pDupa1234 -e "SELECT \`playedtotal\` FROM \`trackedtimes\`.\`$steamId\` WHERE \`appid\` = '$appId' ORDER BY \`playedtotal\` DESC LIMIT 1" trackedtimes | grep -vi 'played')
+        echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#	echo "<td class='id'>x</td>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#	echo "<td class='total'>y</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+
+        echo "</tr>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 done
+
+
+	
+
+#for appId in $(ls $pathToScript/users/$steamId/|grep -viE 'csv|xml|txt'); do
+#	if [ $(cat $pathToScript/users/$steamId/$appId/$currentDate | awk -F';' '{print $3}') -gt 0 ]; then
+#		#echo -n "$appId;$(cat $pathToScript/users/$steamId/$appId/info.txt);"
+#		totalPlayed=0
+#		recentPlayedTotal=0
+#		#count Recent played to decide if game should be printed
+#		for i in $(seq 0 $lastDays); do
+#			if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
+#				if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
+#					if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
+#							timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $2}')
+#							recentPlayedTotal=$(($recentPlayedTotal + $timePlayed))
+#					fi
+#				fi
+#			fi
+#		done
+#		
+#		if [ $recentPlayedTotal -gt 0 ]; then
+#			#echo "<tr><td class='id'>$appId</td>"
+#			echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#			for i in $(seq 0 $lastDays); do
+#				if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
+#					if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
+#						timePlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $2}')
+#						totalPlayed=$(cat $pathToScript/users/$steamId/$appId/${dateArray[i]} | awk -F';' '{print $3}')
+#						if [ ${dateArray[i]} == $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
+#							tdclass="low"
+#						elif [ $timePlayed -gt 179 ]; then
+#							tdclass="veryhigh"
+#						elif [ $timePlayed -gt 119 ]; then
+#							tdclass="high"
+#									elif [ $timePlayed -gt 59 ]; then
+#											tdclass="medium"
+#						elif [ $timePlayed -gt 0 ]; then
+#
+#							tdclass="low"
+#						else
+#							tdclass="zero"
+#						fi
+#
+#						#if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
+#							#=$(($recentPlayedTotal + $timePlayed))
+#						#fi
+#						echo -n "<td class='$tdclass'><?php echo round($timePlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#					else
+#
+#						echo "<td class='na'>N/A</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#					fi
+#				elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then
+#					echo "<td class='joined'>Joined!</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#				else
+#					echo "<td class='na'>N/A</td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#				fi
+#			done
+#
+#			echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#			echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#
+#			echo "</tr>">>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#		fi
+#	fi
+#done
 
 
 ##RUN MAIN SCRIPT
 #while read line; do
-#	lineDate=$(echo $line | awk -F';' '{print $1}')
-#	gameTitle=$(echo $line | awk -F';' '{print $3}')
-#	appId=$(echo $line | awk -F';' '{print $2}')
-#	thisDayPlayed=$(echo $line | awk -F';' '{print $4}')
+#	lineDate=$(secho $line | awk -F';' '{print $1}')
+#	gameTitle=$(secho $line | awk -F';' '{print $3}')
+#	appId=$(secho $line | awk -F';' '{print $2}')
+#	thisDayPlayed=$(secho $line | awk -F';' '{print $4}')
 #	if [ $lineDate == "2019-08-14" ]; then
 #		echo "<tr><td>$appId</td><td>$gameTitle</td><td></td><td></td><td></td><td></td><td>$thisDayPlayed</td><td></td></tr>" >>  /var/www/html/steamtracker/$steamName-$steamId.php
 #	fi
@@ -257,6 +321,7 @@ echo "</table></div><div class='rightmain'>" >>  "/var/www/html/steamtracker/$st
 echo "<div class='userinfo'><div class='username'>$(tail -1 $pathToScript/users/$steamId/userinfo.txt | awk -F';' '{print $2}')</div>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "<div class='datejoined'>Joined @ $dateJoined</div></div>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 #BUILD TOP 5 OVERALL
+#SELECT * FROM (SELECT `id`,MAX(date),`appid`,`playedtotal` FROM `trackedtimes`.`76561198000030995` GROUP BY `appid`) tmp ORDER BY `playedtotal` DESC
 #echo "<br>TOP 5 OVERALL<br>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "<div class='top5'><table class='top5'>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 counter=0
@@ -282,6 +347,7 @@ while read i; do #for i in $(cat /var/www/html/steamtracker/$steamId/top5-ever.t
                 fi
 
 		echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">z</td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 	fi
 	if [ $counter -gt 5 ]; then
 		break
@@ -309,12 +375,14 @@ while read i; do
                 tdclass="zero"
                 fi
 		echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">f</td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 
 #		echo "<tr><td>$appId</td><td>$gameName</td><td>$gameTime</td></tr>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 	fi
 done < /home/osmc/git/steamtracker/users/$steamId/2019-08-top5.txt
 echo "</table></div>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "</div></div>" >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+
 echo "<script>
 function sortTable(r,order,numbers) {
   var table, rows, switching, i, x, y, shouldSwitch;
@@ -392,6 +460,7 @@ function sortTable(r,order,numbers) {
 }
 </script>
 " >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
+
 echo "</body></html>"  >>  "/var/www/html/steamtracker/$steamName-$steamId.php"
 echo "Generated website: $steamName-$steamId.php"
 

@@ -3,5 +3,11 @@ steamId=$1
 currentDate=$(date +%Y-%m-%d)
 pathToScript="/home/osmc/git/steamtracker"
 mkdir -p $pathToScript/users/$steamId
-echo $currentDate > $pathToScript/users/$steamId/datejoined.txt
+if [ -f $pathToScript/users/$steamId/datejoined.txt]; then
+	echo "Users exists"
+else
+	echo $currentDate > $pathToScript/users/$steamId/datejoined.txt
+fi
 $pathToScript/getsite.sh $steamId
+$pathToScript/calcMonth.sh $steamId
+$pathToScript/generateWeb.sh $steamId

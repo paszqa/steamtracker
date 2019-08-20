@@ -14,6 +14,8 @@
 for i in $(ls /home/osmc/git/steamtracker/users); do
 	echo "Getting site for: $i"
 	/home/osmc/git/steamtracker/getsite.sh $i
+	echo "Calculating months for: $i"
+	/home/osmc/git/steamtracker/calcMonth.sh $i
 	echo "Generating website for: $i"
 	/home/osmc/git/steamtracker/generateWeb.sh $i
 done
