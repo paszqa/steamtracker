@@ -59,7 +59,7 @@ while read line; do
 		#check if previous datefile exists, if not, set yesterday to 0
 #		mysql -u loser -pDupa1234 -e "SELECT \`playedToday\` FROM \`76561198034881605\` WHERE \`appId\` = '286160' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played'
 #		echo "mysql -u loser -pDupa1234 -e \"SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1\" trackedtimes| grep -vi 'played'"
-		echo "---------"
+#		echo "---------"
 		queryResult=$(mysql -u loser -pDupa1234 -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
 		queryResultLines=$(echo $queryResult | wc -l)
 #		echo "QR:$queryResult"
