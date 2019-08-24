@@ -167,7 +167,7 @@ done
 echo -n "" > $pathToScript/users/$steamId/top5-ever.txt
 #mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT `id`,MAX(date),`appid`,`playedtotal` FROM `trackedtimes`.`$steamId` GROUP BY `appid`) tmp ORDER BY `playedtotal` DESC LIMIT 5" | awk -F\\t '{print "\""$1"\";"$2";"$3"}'
 #mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`76561198000030995\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" | awk -F\\t '{print ""$3";;"$4}'
-mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`76561198000030995\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" trackedtimes | grep -vi 'id' | awk -F\\t '{print ""$3";;"$4";"}' >> $pathToScript/users/$steamId/top5-ever.txt
+mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`$steamId\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" trackedtimes | grep -vi 'id' | awk -F\\t '{print ""$3";;"$4";"}' >> $pathToScript/users/$steamId/top5-ever.txt
 
 
 
