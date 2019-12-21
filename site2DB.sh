@@ -46,6 +46,8 @@ else
 fi
 
 #cat todaysite_nospaces.xml | awk -F'</message>' '{print $2}'|awk -F'appid>' '{print $2}'|tr -d '<'|tr -d '/'; echo ""
+echo -n "Checking if DB exists..."
+mysql -u loser -pDupa1234 -e "CREATE TABLE IF NOT EXISTS \`$steamId\` ( \`id\` INT NOT NULL AUTO_INCREMENT , \`date\` DATE NOT NULL , \`appId\` INT NOT NULL , \`playedTotal\` INT NOT NULL , \`playedToday\` INT NOT NULL , PRIMARY KEY (\`id\`)) ENGINE = InnoDB;" trackedtimes
 echo -n "Analyzing $filenameTemp..."
 while read line; do
         if [[ $line != "" ]] && [[ $line != " " ]]; then
@@ -60,7 +62,9 @@ while read line; do
 #		mysql -u loser -pDupa1234 -e "SELECT \`playedToday\` FROM \`76561198034881605\` WHERE \`appId\` = '286160' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played'
 #		echo "mysql -u loser -pDupa1234 -e \"SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1\" trackedtimes| grep -vi 'played'"
 #		echo "---------"
+		#queryResult=$(mysql -u loser -pDupa1234 -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` < '$currentDate' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
 		queryResult=$(mysql -u loser -pDupa1234 -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
+
 		queryResultLines=$(echo $queryResult | wc -l)
 #		echo "QR:$queryResult"
 #		echo "--"
@@ -92,6 +96,10 @@ while read line; do
 		if [ $playedTodayOnly -gt 0 ]; then
 			if [ $(mysql -u loser -pDupa1234 -e "SELECT * FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes | grep -vi 'id'| wc -l) -lt 1 ]; then
 			mysql -u loser -pDupa1234 -e "INSERT INTO \`$steamId\` (\`id\`, \`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`) VALUES ('', '$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly'); " trackedtimes
+#			else
+#				 mysql -u loser -pDupa1234 -e "DELETE FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes
+#				 mysql -u loser -pDupa1234 -e "INSERT INTO \`$steamId\` (\`id\`, \`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`) VALUES ('', '$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly'); " trackedtimes
+
 			fi
 		fi
         fi
