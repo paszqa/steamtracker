@@ -19,7 +19,7 @@ for i in $(ls /home/osmc/git/steamtracker/users); do
 #	/home/osmc/git/steamtracker/calcMonth.sh $i
 	/home/osmc/git/steamtracker/calcMonthFromDB.sh $i
 	echo "Generating website for: $i"
-	/home/osmc/git/steamtracker/genWebFromDB.sh $i
+	/home/osmc/git/steamtracker/genWebSmallFromDB.sh $i
 #	/home/osmc/git/steamtracker/generateWeb.sh $i
 done
 

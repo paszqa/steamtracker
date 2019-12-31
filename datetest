@@ -1,0 +1,15 @@
+#!/bin/bash
+startdate='2019-08-14'
+enddate='2019-09-10'
+
+enddate=$( date -d "$enddate + 1 day" +%Y%m%d )   # rewrite in YYYYMMDD format
+                                                  #  and take last iteration into account
+thedate=$( date -d "$startdate" +%Y%m%d )
+while [ "$thedate" != "$enddate" ]; do
+    echo "The date is $thedate"
+    #./AddMissingMonthTotal.sh 76561198000030995 2019-08-18
+	dateformat=$(date -d "$thedate" +%Y-%m-%d)
+#	echo form:$dateformat
+	./AddMissingMonthTotal.sh 76561198000030995 $dateformat
+    thedate=$( date -d "$thedate + 1 days" +%Y%m%d ) # increment by one day
+done
