@@ -265,19 +265,19 @@ tr:hover{
 	filter: drop-shadow(4px 4px 4px #888);
 }
 p.dateday{
-	font-size: 7px;
+	font-size: 14px;
 	font-weight: normal;
 	line-height: 18px;
 	margin: 0px;
 }
 p.datemonth{
-	font-size: 4px;
+	font-size: 10px;
 	font-weight: normal;
-	line-height: 10px;
+	line-height: 5px;
 	margin: 0px;
 }
 p.dateyear{
-	font-size: 4px;
+	font-size: 8px;
 	font-weight: normal;
 	line-height: 10px;
 	margin: 0px;

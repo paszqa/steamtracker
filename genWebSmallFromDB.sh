@@ -18,19 +18,21 @@ steamName=$(tail -1 $pathToScript/users/$steamId/userinfo.txt|awk -F';' '{print 
 pathToPlayed="$pathToScript/users/$steamId/played.csv"
 pathToGameList="$pathToScript/users/$steamId/gamelist.csv"
 dateJoined=$(cat $pathToScript/users/$steamId/datejoined.txt)
+mkdir -p $pathToWebDir/files
+cp files/style_default.css $pathToWebDir/files/
 dbuser=$2
 dbpass=$3
 ########## CLEAR OLD PHP/HTML ################
-echo "" > "$pathToWebDir/$steamName-$steamId.php"
+echo "" > "$pathToWebDir/$steamName-$steamId.html"
 echo "" > "$pathToWebDir/$steamName-$steamId-raw.php"
 ########## GENERATE NEW WEBSITE ##############
 #Header / Stylesheet
-echo '<html><meta charset="UTF-8"><head><style>' >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<link rel=\"stylesheet\" href=\"files/style_default.css\"></head>" >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<body>" >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<div class='main'><div class='leftmain'>" >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<table id=\"myTable\"><tr>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable(1,'asc',0); this.id='B';}else{sortTable(1,'desc',0); this.id='A';}\" style='width: 70px;'>Game</th>">>  "$pathToWebDir/$steamName-$steamId.php"
+echo '<html><meta charset="UTF-8"><head>' >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<link rel=\"stylesheet\" href=\"files/style_default.css\"></head>" >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<body>" >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<div class='main'><div class='leftmain'>" >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<table id=\"myTable\"><tr>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<th id='A' class='firstrow' onclick=\"if(this.id=='A'){ sortTable(1,'asc',0); this.id='B';}else{sortTable(1,'desc',0); this.id='A';}\" style='width: 70px;'>Game</th>">>  "$pathToWebDir/$steamName-$steamId.html"
 dateArray=()
 whichtable=0
 for i in $(seq 0 $lastDays); do
@@ -39,16 +41,16 @@ for i in $(seq 0 $lastDays); do
 	
 	dateArray+=("$thisDate")
 	if [ $(date -d $thisDate +%s) -gt $(date -d $dateJoined +%s) ]; then
-		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+1)),'desc',1); this.id='A';}\"><p class='dateday'>$(date -d $thisDate +%d)</p><p class='datemonth'>$(date -d $thisDate +%b)</p><p class='dateyear'>$(date -d $thisDate +%Y)</p></th>" >>  "$pathToWebDir/$steamName-$steamId.php"
+		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+1)),'desc',1); this.id='A';}\"><p class='dateday'>$(date -d $thisDate +%d)</p><p class='datemonth'>$(date -d $thisDate +%b)</p><p class='dateyear'>$(date -d $thisDate +%Y)</p></th>" >>  "$pathToWebDir/$steamName-$steamId.html"
 		whichtable=$(($whichtable+1))
 	else
-		echo "<th id='A' class='dates'><p class='dateday'>$(date -d $thisDate +%d)</p><p class='datemonth'>$(date -d $thisDate +%b)</p><p class='dateyear'>$(date -d $thisDate +%Y)</p></th>" >>  "$pathToWebDir/$steamName-$steamId.php"
+		echo "<th id='A' class='dates'><p class='dateday'>$(date -d $thisDate +%d)</p><p class='datemonth'>$(date -d $thisDate +%b)</p><p class='dateyear'>$(date -d $thisDate +%Y)</p></th>" >>  "$pathToWebDir/$steamName-$steamId.html"
 		whichtable=$(($whichtable+1))
 	fi
 
 	if [ $i == $lastDays ]; then
-		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+1)),'desc',1); this.id='A';}\">PLAYED<br>RECENTLY</th>" >>  "$pathToWebDir/$steamName-$steamId.php"
-		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+2)),'asc',1); this.id='B';}else{sortTable($(($whichtable+2)),'desc',1); this.id='A';}\">PLAYED<br>TOTAL </th></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
+		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+1)),'asc',1); this.id='B';}else{sortTable($(($whichtable+1)),'desc',1); this.id='A';}\">PLAYED<br>RECENTLY</th>" >>  "$pathToWebDir/$steamName-$steamId.html"
+		echo "<th id='A' class='dates' onclick=\"if(this.id=='A'){ sortTable($(($whichtable+2)),'asc',1); this.id='B';}else{sortTable($(($whichtable+2)),'desc',1); this.id='A';}\">PLAYED<br>TOTAL </th></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
 	fi
 		
 done
@@ -78,7 +80,7 @@ mysql -u $dbuser -p$dbpass -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,
 
 #BUILD UI
 for appId in $(mysql -u $dbuser -p$dbpass -e "SELECT DISTINCT \`appid\` FROM \`$steamId\` WHERE \`date\` >= '$firstDate' AND \`playedtoday\` ORDER BY \`playedtotal\`" trackedtimes | grep -vi 'id'); do
-	echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "$pathToWebDir/$steamName-$steamId.php"
+	echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>" >> "$pathToWebDir/$steamName-$steamId.html"
 	recentPlayedTotal=0
 	for i in $(seq 0 $lastDays); do
 		if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
@@ -124,24 +126,33 @@ for appId in $(mysql -u $dbuser -p$dbpass -e "SELECT DISTINCT \`appid\` FROM \`$
 	                else
 	                       	tdclass="zero"
 	                fi
-			echo -n "<td class='$tdclass' title='<?php echo round($timePlayed/60,2) ?>'> </td>" >>  "$pathToWebDir/$steamName-$steamId.php"
-			#echo "<td>$timePlayed ;$i</td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+			echo -n "<td class='$tdclass' title='" >> "$pathToWebDir/$steamName-$steamId.html"
+			timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
+			printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
+			echo -n "'> </td>" >>  "$pathToWebDir/$steamName-$steamId.html"
+			#echo "<td>$timePlayed ;$i</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 			#done
 		elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then
 			#print "joined!!"
-			echo "<td class='joined' title='Joined!'></td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+			echo "<td class='joined' title='Joined!'></td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 		else
 			#print n/a
-			echo "<td class='na' title='N/A'></td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+			echo "<td class='na' title='N/A'></td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 		fi
 	done
-        echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "$pathToWebDir/$steamName-$steamId.php"
+        echo "<td class='id'>" >> "$pathToWebDir/$steamName-$steamId.html"
+		recentPlayedTotal=$(echo "$recentPlayedTotal 60" | awk '{printf "%.2f", $1 / $2}')
+		printf "%.2f" $recentPlayedTotal  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($recentPlayedTotal/60,2) ?>
+		echo "</td>"  >>  "$pathToWebDir/$steamName-$steamId.html"
 	totalPlayed=$(mysql -u $dbuser -p$dbpass -e "SELECT \`playedtotal\` FROM \`trackedtimes\`.\`$steamId\` WHERE \`appid\` = '$appId' ORDER BY \`playedtotal\` DESC LIMIT 1" trackedtimes | grep -vi 'played')
-        echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "$pathToWebDir/$steamName-$steamId.php"
-#	echo "<td class='id'>x</td>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-#	echo "<td class='total'>y</td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+        echo -n "<td class='total'>" >> "$pathToWebDir/$steamName-$steamId.html"
+		totalPlayed=$(echo "$totalPlayed 60" | awk '{printf "%.2f", $1 / $2}')
+		printf "%.2f" $totalPlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($totalPlayed/60,2) ?>
+		echo "</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
+#	echo "<td class='id'>x</td>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+#	echo "<td class='total'>y</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 
-        echo "</tr>">>  "$pathToWebDir/$steamName-$steamId.php"
+        echo "</tr>">>  "$pathToWebDir/$steamName-$steamId.html"
 done
 
 
@@ -166,7 +177,7 @@ done
 #		
 #		if [ $recentPlayedTotal -gt 0 ]; then
 #			#echo "<tr><td class='id'>$appId</td>"
-#			echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "$pathToWebDir/$steamName-$steamId.php"
+#			echo "<td class='game'><img class='imglarge' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td>">>  "$pathToWebDir/$steamName-$steamId.html"
 #			for i in $(seq 0 $lastDays); do
 #				if [ $(date -d ${dateArray[i]} +%s) -gt $(date -d $dateJoined +%s) ]; then
 #					if [ -f $pathToScript/users/$steamId/$appId/${dateArray[i]} ]; then
@@ -190,22 +201,22 @@ done
 #						#if [ ${dateArray[i]} != $(cat $pathToScript/users/$steamId/datejoined.txt) ]; then
 #							#=$(($recentPlayedTotal + $timePlayed))
 #						#fi
-#						echo -n "<td class='$tdclass'><?php echo round($timePlayed/60,2) ?></td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#						echo -n "<td class='$tdclass'><?php echo round($timePlayed/60,2) ?></td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #					else
 #
-#						echo "<td class='na'>N/A</td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#						echo "<td class='na'>N/A</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #					fi
 #				elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then
-#					echo "<td class='joined'>Joined!</td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#					echo "<td class='joined'>Joined!</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #				else
-#					echo "<td class='na'>N/A</td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#					echo "<td class='na'>N/A</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #				fi
 #			done
 #
-#			echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-#			echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#			echo "<td class='id'><?php echo round($recentPlayedTotal/60,2) ?></td>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+#			echo "<td class='total'><?php echo round($totalPlayed/60,2) ?></td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #
-#			echo "</tr>">>  "$pathToWebDir/$steamName-$steamId.php"
+#			echo "</tr>">>  "$pathToWebDir/$steamName-$steamId.html"
 #		fi
 #	fi
 #done
@@ -218,24 +229,24 @@ done
 #	appId=$(secho $line | awk -F';' '{print $2}')
 #	thisDayPlayed=$(secho $line | awk -F';' '{print $4}')
 #	if [ $lineDate == "2019-08-14" ]; then
-#		echo "<tr><td>$appId</td><td>$gameTitle</td><td></td><td></td><td></td><td></td><td>$thisDayPlayed</td><td></td></tr>" >>  $pathToWebDir/$steamName-$steamId.php
+#		echo "<tr><td>$appId</td><td>$gameTitle</td><td></td><td></td><td></td><td></td><td>$thisDayPlayed</td><td></td></tr>" >>  $pathToWebDir/$steamName-$steamId.html
 #	fi
-#	echo $line >>  $pathToWebDir/$steamName-$steamId.php
+#	echo $line >>  $pathToWebDir/$steamName-$steamId.html
 #done < $pathToPlayed
 
-echo "</table></div><div class='rightmain'>" >>  "$pathToWebDir/$steamName-$steamId.php"
+echo "</table></div><div class='rightmain'>" >>  "$pathToWebDir/$steamName-$steamId.html"
 
 
-echo "<div class='userinfo'><div class='username'>$(tail -1 $pathToScript/users/$steamId/userinfo.txt | awk -F';' '{print $2}')</div>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<div class='datejoined'>Joined @ $dateJoined</div></div>"  >>  "$pathToWebDir/$steamName-$steamId.php"
+echo "<div class='userinfo'><div class='username'>$(tail -1 $pathToScript/users/$steamId/userinfo.txt | awk -F';' '{print $2}')</div>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<div class='datejoined'>Joined @ $dateJoined</div></div>"  >>  "$pathToWebDir/$steamName-$steamId.html"
 #BUILD TOP 5 OVERALL
 #SELECT * FROM (SELECT `id`,MAX(date),`appid`,`playedtotal` FROM `trackedtimes`.`76561198000030995` GROUP BY `appid`) tmp ORDER BY `playedtotal` DESC
-#echo "<br>TOP 5 OVERALL<br>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "<div class='top5'><table class='top5'>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#echo "<br>TOP 5 OVERALL<br>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "<div class='top5'><table class='top5'>" >>  "$pathToWebDir/$steamName-$steamId.html"
 counter=0
 while read i; do #for i in $(cat $pathToWebDir/$steamId/top5-ever.txt | head -5); do
 	counter=$(($counter + 1))
-#	echo "<tr><td>$i</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#	echo "<tr><td>$i</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
 	if [[ $i != "" ]]; then
 		appId=$(echo $i|awk -F';' '{print $1}')
 		gameName=$(echo $i|awk -F';' '{print $2}')
@@ -254,17 +265,20 @@ while read i; do #for i in $(cat $pathToWebDir/$steamId/top5-ever.txt | head -5)
                 tdclass="zero"
                 fi
 
-		echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
-#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">z</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
+		echo -n "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">" >> "$pathToWebDir/$steamName-$steamId.html"
+		timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
+		printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
+		echo "</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
+#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">z</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
 	fi
 	if [ $counter -gt 5 ]; then
 		break
 	fi
 done < $pathToScript/users/$steamId/top5-ever.txt
-echo "</table></div>" >>  "$pathToWebDir/$steamName-$steamId.php"
+echo "</table></div>" >>  "$pathToWebDir/$steamName-$steamId.html"
 #BUILD TOP 5 each month
-#echo "<br>TOP 5 MONTH<br>">> "$pathToWebDir/$steamName-$steamId.php"
-echo "<div class='top5'><table class='top5'>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#echo "<br>TOP 5 MONTH<br>">> "$pathToWebDir/$steamName-$steamId.html"
+echo "<div class='top5'><table class='top5'>" >>  "$pathToWebDir/$steamName-$steamId.html"
 while read i; do
 	#for i in $(cat /home/osmc/git/steamtracker/users/$steamId/$steamName-$steamId-top5-ever.txt | sort -t';' -k3 -r -n| head -1); do
 	if [[ $i != "" ]]; then
@@ -282,14 +296,19 @@ while read i; do
                 else
                 tdclass="zero"
                 fi
-		echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\"><?php echo round($timePlayed/60,2) ?></td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
-#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">f</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
+		echo -n "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">" >> "$pathToWebDir/$steamName-$steamId.html"
+		#timePlayed=$(($timePlayed/60))
+		#timePlayed=$(bc <<< "scale=2; (20+5)/2")
+		timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
+		printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
+		echo "</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
+#echo "<tr><td class='top5game'><img class='top5' src='https://steamcdn-a.akamaihd.net/steam/apps/$appId/capsule_231x87.jpg'></td><td id='larger' class=\"$tdclass\">f</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
 
-#		echo "<tr><td>$appId</td><td>$gameName</td><td>$gameTime</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.php"
+#		echo "<tr><td>$appId</td><td>$gameName</td><td>$gameTime</td></tr>" >>  "$pathToWebDir/$steamName-$steamId.html"
 	fi
 done < /home/pi/steamtracker/users/$steamId/2021-07-top5.txt
-echo "</table></div>" >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "</div></div>" >>  "$pathToWebDir/$steamName-$steamId.php"
+echo "</table></div>" >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "</div></div>" >>  "$pathToWebDir/$steamName-$steamId.html"
 
 echo "<script>
 function sortTable(r,order,numbers) {
@@ -367,10 +386,10 @@ function sortTable(r,order,numbers) {
   }
 }
 </script>
-" >>  "$pathToWebDir/$steamName-$steamId.php"
+" >>  "$pathToWebDir/$steamName-$steamId.html"
 
-echo "</body></html>"  >>  "$pathToWebDir/$steamName-$steamId.php"
-echo "Generated website: $steamName-$steamId.php"
+echo "</body></html>"  >>  "$pathToWebDir/$steamName-$steamId.html"
+echo "Generated website: $steamName-$steamId.html"
 
 echo > $pathToWebDir/all.php
 #for y in $pathToWebDir/*; do

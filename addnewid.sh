@@ -1,7 +1,7 @@
 #!/bin/bash
 steamId=$1
 currentDate=$(date +%Y-%m-%d)
-pathToScript="/home/pi/steamtracker"
+pathToScript="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 mkdir -p $pathToScript/users/$steamId
 if [ -f $pathToScript/users/$steamId/datejoined.txt ]; then
 	echo "User exists"

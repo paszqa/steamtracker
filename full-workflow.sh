@@ -11,15 +11,19 @@
 #/home/osmc/git/steamtracker/getsite.sh 76561198034881605
 #Rathma
 #/home/osmc/git/steamtracker/getsite.sh 76561198009810227
-for i in $(ls /home/pi/steamtracker/users); do
+pathToScript="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+dbuser=$1
+dbpass=$2
+
+for i in $(ls $pathToScript/users); do
 	echo "Getting site for: $i"
-	/home/pi/steamtracker/site2DB.sh $i
+	$pathToScript/site2DB.sh $i $1 $2
 	#/home/osmc/git/steamtracker/getsite.sh $i
 	echo "Calculating months for: $i"
 #	/home/osmc/git/steamtracker/calcMonth.sh $i
-	/home/pi/steamtracker/calcMonthFromDB.sh $i
+	$pathToScript/calcMonthFromDB.sh $i $1 $2
 	echo "Generating website for: $i"
-	/home/pi/steamtracker/genWebSmallFromDB.sh $i
+	$pathToScript/genWebSmallFromDB.sh $i $1 $2
 #	/home/osmc/git/steamtracker/generateWeb.sh $i
 done
 

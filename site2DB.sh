@@ -1,21 +1,28 @@
 #!/bin/bash
+########## Info
+# Script takes API data from Steam and transfers it into DB
+# Requirements:
+# - target Steam64 ID of user in the first parameter.
+# - DB user in 2nd parameter
+# - DB pass in 3rd parameter
 
 #########################################################################
 
 #Set variables
-if [ -z $2 ]; then
+#if [ -z $2 ]; then
         currentDate=$(date +%Y-%m-%d)
-else
-        currentDate=$2
-fi
-	#currentDate=$(date +%Y-%m-%d)
+#else
+#        currentDate=$2
+#fi
 previousDate=$(date -d "$currentDate -1 day" +%Y-%m-%d)
-pathToScript="/home/pi/steamtracker"
+pathToScript="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 	#pasza
 	#steamId=76561198000030995
 	#pri
 	#steamId=76561197994977404
 steamId=$1
+dbuser=$2
+dbpass=$3
 filename=$pathToScript/users/$steamId/site_$currentDate.xml
 filenameTemp=$pathToScript/users/$steamId/tmp_$currentDate.xml
 joinedDate=$(cat $pathToScript/users/$steamId/datejoined.txt)
@@ -50,7 +57,7 @@ fi
 
 #cat todaysite_nospaces.xml | awk -F'</message>' '{print $2}'|awk -F'appid>' '{print $2}'|tr -d '<'|tr -d '/'; echo ""
 echo -n "Checking if DB exists..."
-mysql -u loser -pdupa -e "CREATE TABLE IF NOT EXISTS \`$steamId\` ( \`id\` INT NOT NULL AUTO_INCREMENT , \`date\` DATE NOT NULL , \`appId\` INT NOT NULL , \`playedTotal\` INT NOT NULL , \`playedToday\` INT NOT NULL, \`playedThisMonth\` INT NOT NULL, PRIMARY KEY (\`id\`)) ENGINE = InnoDB;" trackedtimes
+mysql -u $dbuser -p$dbpass -e "CREATE TABLE IF NOT EXISTS \`$steamId\` ( \`id\` INT NOT NULL AUTO_INCREMENT , \`date\` DATE NOT NULL , \`appId\` INT NOT NULL , \`playedTotal\` INT NOT NULL , \`playedToday\` INT NOT NULL, \`playedThisMonth\` INT NOT NULL, PRIMARY KEY (\`id\`)) ENGINE = InnoDB;" trackedtimes
 echo -n "Analyzing $filenameTemp..."
 while read line; do
         if [[ $line != "" ]] && [[ $line != " " ]]; then
@@ -67,11 +74,11 @@ while read line; do
 		echo "todayGameTime: "$todayGameTime
 		echo "gameTitle: "$gameTitle
 		#check if previous datefile exists, if not, set yesterday to 0
-#		mysql -u loser -pDupa1234 -e "SELECT \`playedToday\` FROM \`76561198034881605\` WHERE \`appId\` = '286160' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played'
-#		echo "mysql -u loser -pDupa1234 -e \"SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1\" trackedtimes| grep -vi 'played'"
+#		mysql -u $dbuser -p$dbpass1234 -e "SELECT \`playedToday\` FROM \`76561198034881605\` WHERE \`appId\` = '286160' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played'
+#		echo "mysql -u $dbuser -p$dbpass1234 -e \"SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1\" trackedtimes| grep -vi 'played'"
 #		echo "---------"
-		#queryResult=$(mysql -u loser -pDupa1234 -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` < '$currentDate' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
-		queryResult=$(mysql -u loser -pdupa -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
+		#queryResult=$(mysql -u $dbuser -p$dbpass1234 -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` < '$currentDate' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
+		queryResult=$(mysql -u $dbuser -p$dbpass -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played')
 		
 
 		queryResultLines=$(echo $queryResult | wc -l)
@@ -93,13 +100,13 @@ while read line; do
 			echo "Step 1.5: "$lastMonthTotal
 		elif [ $joinedMonth == $currentMonth ]; then
 			echo "Step 2"
-			lastMonthTotal=$(mysql -uloser -pdupa -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$joinedDate'" trackedtimes|grep -vi played)
+			lastMonthTotal=$(mysql -u$dbuser -p$dbpass -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$joinedDate'" trackedtimes|grep -vi played)
 			echo "Step 2: "$lastMonthTotal
 		else
 			echo "Step 3"
-			lastDayOfPreviousMonth=$(mysql -u loser -pdupa -e "SELECT LAST_DAY('$currentDate' - INTERVAL 1 MONTH)" trackedtimes |grep -vi last);
+			lastDayOfPreviousMonth=$(mysql -u $dbuser -p$dbpass -e "SELECT LAST_DAY('$currentDate' - INTERVAL 1 MONTH)" trackedtimes |grep -vi last);
 			echo "LAST DAY OF PREV:"$lastDayOfPreviousMonth" STEAMID:"$steamId" APPID:"$appId
-			lastMonthTotal=$(mysql -u loser -pdupa -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` <= $lastDayOfPreviousMonth ORDER BY \`date\` DESC LIMIT 1" trackedtimes)
+			lastMonthTotal=$(mysql -u $dbuser -p$dbpass -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` <= $lastDayOfPreviousMonth ORDER BY \`date\` DESC LIMIT 1" trackedtimes)
 		fi
 		echo "Step 4"
 #		if [ $(echo $lastMonthTotal|wc -l) -lt 1 ]; then
@@ -141,12 +148,12 @@ while read line; do
 		echo "DJ: "$(cat $pathToScript/users/$steamId/datejoined.txt)
 		if [ $playedTodayOnly -gt 0 ] || ([ $todayGameTime -gt 0 ] && [ $currentDate == $joinedDate ]); then
 			echo "Step 7"
-			if [ $(mysql -u loser -pdupa -e "SELECT * FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes | grep -vi 'id'| wc -l) -lt 1 ]; then
+			if [ $(mysql -u $dbuser -p$dbpass -e "SELECT * FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes | grep -vi 'id'| wc -l) -lt 1 ]; then
 				echo "Step 8 - "$currentDate
-				mysql -u loser -pdupa -e "INSERT INTO \`$steamId\` (\`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`, \`playedThisMonth\`) VALUES ('$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly', '$playedThisMonth'); " trackedtimes
+				mysql -u $dbuser -p$dbpass -e "INSERT INTO \`$steamId\` (\`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`, \`playedThisMonth\`) VALUES ('$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly', '$playedThisMonth'); " trackedtimes
 #			else
-#				 mysql -u loser -pDupa1234 -e "DELETE FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes
-#				 mysql -u loser -pDupa1234 -e "INSERT INTO \`$steamId\` (\`id\`, \`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`) VALUES ('', '$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly'); " trackedtimes
+#				 mysql -u $dbuser -p$dbpass1234 -e "DELETE FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes
+#				 mysql -u $dbuser -p$dbpass1234 -e "INSERT INTO \`$steamId\` (\`id\`, \`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`) VALUES ('', '$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly'); " trackedtimes
 
 			fi
 		fi
