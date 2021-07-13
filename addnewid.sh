@@ -8,6 +8,3 @@ if [ -f $pathToScript/users/$steamId/datejoined.txt ]; then
 else
 	echo $currentDate > $pathToScript/users/$steamId/datejoined.txt
 fi
-#$pathToScript/getsite.sh $steamId
-#$pathToScript/calcMonth.sh $steamId
-#$pathToScript/generateWeb.sh $steamId

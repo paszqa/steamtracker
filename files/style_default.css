@@ -1,0 +1,307 @@
+body {
+	font-family: Calibri, Arial;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	height: 100%;
+	background: rgba(250,244,237,1);
+	background: -moz-linear-gradient(top, rgba(250,244,237,1) 0%, rgba(227,183,136,1) 70%, rgba(168,92,0,1) 100%);
+	background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(250,244,237,1)), color-stop(70%, rgba(227,183,136,1)), color-stop(100%, rgba(168,92,0,1)));
+	background: -webkit-linear-gradient(top, rgba(250,244,237,1) 0%, rgba(227,183,136,1) 70%, rgba(168,92,0,1) 100%);
+	background: -o-linear-gradient(top, rgba(250,244,237,1) 0%, rgba(227,183,136,1) 70%, rgba(168,92,0,1) 100%);
+	background: -ms-linear-gradient(top, rgba(250,244,237,1) 0%, rgba(227,183,136,1) 70%, rgba(168,92,0,1) 100%);
+	background: linear-gradient(to bottom, rgba(250,244,237,1) 0%, rgba(227,183,136,1) 70%, rgba(168,92,0,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#faf4ed', endColorstr='#a85c00', GradientType=0 );
+}
+div.main {
+	width:100%;
+}
+div.leftmain {
+	vertical-align: top;
+	display: inline-block;
+	border: 0px solid transparent;
+	width: 70%;
+}
+div.rightmain {
+	vertical-align: top;
+	display: inline-block;
+	border: 0px solid transparent;
+	width: 29%;
+}
+div.userinfo {
+	margin-left: 2%;
+	width: 95%;
+	border-radius: 10px;
+	padding: 15px 15px 15px 15px;
+	background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,174,75,1)), color-stop(17%, rgba(247,228,207,1)), color-stop(34%, rgba(255,174,75,1)), color-stop(100%, rgba(168,92,0,1)));
+	background: -webkit-linear-gradient(left, rgba(255,174,75,1) 0%, rgba(247,228,207,1) 17%, rgba(255,174,75,1) 34%, rgba(168,92,0,1) 100%);
+	background: -o-linear-gradient(left, rgba(255,174,75,1) 0%, rgba(247,228,207,1) 17%, rgba(255,174,75,1) 34%, rgba(168,92,0,1) 100%);
+	background: -ms-linear-gradient(left, rgba(255,174,75,1) 0%, rgba(247,228,207,1) 17%, rgba(255,174,75,1) 34%, rgba(168,92,0,1) 100%);
+	background: linear-gradient(to right, rgba(255,174,75,1) 0%, rgba(247,228,207,1) 17%, rgba(255,174,75,1) 34%, rgba(168,92,0,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffae4b', endColorstr='#a85c00', GradientType=1 );
+}
+div.username {
+	font-size: 35px;
+	color: white;
+	text-shadow: 2px 2px #444;
+	width: 100%;
+}
+div.datejoined {
+	color: #999;
+	font-size: 20px;
+	width: 50%;
+}
+table{
+	width: 100%;
+	border: 2px solid transparent;
+	border-collapse: separate;
+	background-color: #fff;
+	border-spacing: 3px;
+}
+td{
+	text-align: center;
+	border: 0px solid #777;
+	border-radius: 5px;
+}
+th{
+	border: 0px solid #000;
+	border-radius: 5px;
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+th:hover{
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+th.firstrow{
+	background-color: #e68a00;
+	text-align: center;
+}
+th.firstrow:hover{
+	background-color: #ffc266;
+}
+th.dates{
+	background-color: #e68a00;
+	text-align: center;
+	width: 40px;
+}
+th.dates:hover{
+	background-color: #ffc266;
+	text-align: center;
+	width: 40px;
+}
+td {
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+td#larger{
+	font-size: 25px;
+}
+td:hover {
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+td.id{
+	background-color: #ffd9b3;
+}
+td.id:hover{
+	background-color: #fff2e6;
+}
+img.imglarge{
+	border-radius: 10px;
+	max-width: 100%;
+	height: 20px;
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+img.imglarge:hover{
+	filter: brightness(1.4);
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+	max-width: 100%;
+	height: 20px;
+}
+td.game{
+	text-align: left;
+	background-color: transparent;
+}
+td.game:hover{
+	text-align: left;
+	background-color: transparent;
+}
+td.joined{
+	text-align: center;
+	background-color: #ffff66;
+}
+td.joined:hover{
+	text-align: center;
+	background-color: #ffffb3;
+}
+td.total{
+	text-align: center;
+	background-color: #ffb366;
+}
+td.total:hover{
+	text-align: center;
+	background-color: #ffd9b3;
+}
+td.na{
+	background-color: #a5a5a5;
+}
+td.na:hover{
+	background-color: #d9d9d9;
+}
+td.zero{
+	background-color: #ffffff;
+}
+td.zero:hover{
+	background-color: #ffffff;
+}
+td.low{
+	background-color: #eeffcc;
+}
+td.low:hover{
+	background-color: #eeffcc;
+}
+td.medium{
+	background-color: #ddff99;
+}
+td.medium:hover{
+	background-color: #ddff99;
+}
+td.high{
+	background-color: #ccff66;
+}
+td.high:hover{
+	background-color: #ccff66;
+}
+td.veryhigh{
+	background-color: #99e600;
+}
+td.veryhigh:hover{
+	background-color: #99e600;
+}
+td.dark1{
+	background-color: #88cc00;
+}
+td.dark1:hover{
+	background-color: #88cc00;
+}
+td.dark2{
+	background-color: #77b300;
+}
+td.dark2:hover{
+	background-color: #77b300;
+}
+td.dark3{
+	background-color: #669900;
+}
+td.dark3:hover{
+	background-color: #669900;
+}
+td.dark4{
+	background-color: #446600;
+}
+td.dark4:hover{
+	background-color: #446600;
+}
+td.dark5{
+	background-color: #334d00;
+}
+td.dark5:hover{
+	background-color: #334d00;
+}
+td.dark6{
+	background-color: #223300;
+}
+td.dark6:hover{
+	background-color: #223300;
+}
+td.dark7{
+	background-color: #000000;
+}
+td.dark7:hover{
+	background-color: #000000;
+}
+table.myTable td{
+	overflow: hidden;
+	white-space: nowrap;
+	width: 15px;
+	font-size: 5px;
+}
+tr{
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+	background-color: transparent;
+	border-radius: 5px;
+}
+tr:hover{
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+	background-color: transparent;
+	filter: drop-shadow(4px 4px 4px #888);
+}
+p.dateday{
+	font-size: 7px;
+	font-weight: normal;
+	line-height: 18px;
+	margin: 0px;
+}
+p.datemonth{
+	font-size: 4px;
+	font-weight: normal;
+	line-height: 10px;
+	margin: 0px;
+}
+p.dateyear{
+	font-size: 4px;
+	font-weight: normal;
+	line-height: 10px;
+	margin: 0px;
+}
+div.top5 {
+	vertical-align: top;
+	display: inline-block;
+	width: 49%;
+}
+table.top5{
+	width: 100%;
+	background-color: transparent;
+}
+td.top5game {
+	width: 50%;
+	text-align: left;
+	background-color: transparent;
+}
+td #id {
+	font-size: 25px;
+	color: #fff;
+	text-shadow: 2px 2px #000;
+}
+img.top5 {
+	max-width: 100%;
+	height: auto;
+}
