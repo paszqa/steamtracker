@@ -11,15 +11,15 @@
 #/home/osmc/git/steamtracker/getsite.sh 76561198034881605
 #Rathma
 #/home/osmc/git/steamtracker/getsite.sh 76561198009810227
-for i in $(ls /home/osmc/git/steamtracker/users); do
+for i in $(ls /home/pi/steamtracker/users); do
 	echo "Getting site for: $i"
-	/home/osmc/git/steamtracker/site2DB.sh $i
+	/home/pi/steamtracker/site2DB.sh $i
 	#/home/osmc/git/steamtracker/getsite.sh $i
 	echo "Calculating months for: $i"
 #	/home/osmc/git/steamtracker/calcMonth.sh $i
-	/home/osmc/git/steamtracker/calcMonthFromDB.sh $i
+	/home/pi/steamtracker/calcMonthFromDB.sh $i
 	echo "Generating website for: $i"
-	/home/osmc/git/steamtracker/genWebSmallFromDB.sh $i
+	/home/pi/steamtracker/genWebSmallFromDB.sh $i
 #	/home/osmc/git/steamtracker/generateWeb.sh $i
 done
 

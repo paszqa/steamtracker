@@ -7,7 +7,7 @@ if [ -z $2 ]; then
 else
 	currentDate=$2
 fi
-pathToScript="/home/osmc/git/steamtracker"
+pathToScript="/home/pi/steamtracker"
 #pasza
 #steamId=76561198000030995
 #pri

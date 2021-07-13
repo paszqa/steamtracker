@@ -4,7 +4,7 @@ previousDate=$(date -d "$currentDate -1 day" +%Y-%m-%d)
 #currentDay=$(date +%d)
 #currentMonth=$(date +%m)
 #currentYear=$(date +%Y)
-pathToScript="/home/osmc/git/steamtracker"
+pathToScript="/home/pi/steamtracker"
 steamId=$1
 dateJoined=$(cat $pathToScript/users/$steamId/datejoined.txt)
 
@@ -18,10 +18,10 @@ for currentYear in $(seq $(date -d $dateJoined +%Y) $(date -d $currentDate +%Y))
                 fi
 		echo -n > "$pathToScript/users/$steamId/$currentYear-$currentMonthFixed-raw.txt"
 		#mysql -u loser -pDupa1234 -e "SELECT * FROM (SELECT \`id\`,MAX(date),\`appid\`,\`playedtotal\` FROM \`trackedtimes\`.\`76561198000030995\` GROUP BY \`appid\`) tmp ORDER BY \`playedtotal\` DESC LIMIT 5" trackedtimes | awk -F\\t '{print ""$3";;"$4";"}
-		for appId in $(mysql -u loser -pDupa1234 -e "SELECT DISTINCT \`appid\` FROM \`$steamId\` WHERE MONTH(date) = '$currentMonthFixed' ORDER BY \`playedtotal\`" trackedtimes | grep -vi 'appid' ); do
+		for appId in $(mysql -u loser -pdupa -e "SELECT DISTINCT \`appid\` FROM \`$steamId\` WHERE MONTH(date) = '$currentMonthFixed' ORDER BY \`playedtotal\`" trackedtimes | grep -vi 'appid' ); do
 			timePlayedThisMonth=0
 #			echo "APPID:$appId"
-			for singleday in $(mysql -u loser -pDupa1234 -e "SELECT \`playedToday\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND MONTH(date) = '$currentMonthFixed'" trackedtimes | grep -vi 'playedToday'); do
+			for singleday in $(mysql -u loser -pdupa -e "SELECT \`playedToday\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND MONTH(date) = '$currentMonthFixed'" trackedtimes | grep -vi 'playedToday'); do
 #				echo "SD:$singleday"
 #				if [ $singleday
 				timePlayedThisMonth=$(($timePlayedThisMonth + $singleday))
