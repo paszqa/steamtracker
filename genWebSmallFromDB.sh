@@ -6,10 +6,10 @@
 # - DB pass in 3rd parameter
 
 ############ CONFIG ################
-lastDays=40 ###DEFINE THIS
+lastDays=14 ###DEFINE THIS
 pathToWebDir="/var/www/localhost/steamtracker"   ###DEFINE THIS
 ############ AUTO SETUP ############
-currentDate=$(date +%Y-%m-%d)
+currentDate=$(date -d yesterday +%Y-%m-%d)
 firstDate=$(date -d "$currentDate -$lastDays day" +%Y-%m-%d)
 steamId=$1
 pathToScript="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -126,10 +126,12 @@ for appId in $(mysql -u $dbuser -p$dbpass -e "SELECT DISTINCT \`appid\` FROM \`$
 	                else
 	                       	tdclass="zero"
 	                fi
-			echo -n "<td class='$tdclass' title='" >> "$pathToWebDir/$steamName-$steamId.html"
+			echo -n "<td class='$tdclass' title=''>" >> "$pathToWebDir/$steamName-$steamId.html"
 			timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
-			printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
-			echo -n "'> </td>" >>  "$pathToWebDir/$steamName-$steamId.html"
+			if [ $timePlayed -gt 0 ]; then
+				printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
+			fi
+			echo -n " </td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 			#echo "<td>$timePlayed ;$i</td>" >>  "$pathToWebDir/$steamName-$steamId.html"
 			#done
 		elif [ $(date -d ${dateArray[i]} +%s) -eq $(date -d $dateJoined +%s) ]; then

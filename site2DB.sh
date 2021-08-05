@@ -10,7 +10,7 @@
 
 #Set variables
 #if [ -z $2 ]; then
-        currentDate=$(date +%Y-%m-%d)
+        currentDate=$(date -d yesterday +%Y-%m-%d)
 #else
 #        currentDate=$2
 #fi
@@ -68,11 +68,11 @@ while read line; do
                 folder=$pathToScript/users/$steamId/$appId
                 mkdir -p $folder
 		
-		echo " "
-		echo "----------------------------------"
-		echo "appId: "$appId
-		echo "todayGameTime: "$todayGameTime
-		echo "gameTitle: "$gameTitle
+		#echo " "
+		#echo "----------------------------------"
+		#echo "appId: "$appId
+		#echo "todayGameTime: "$todayGameTime
+		echo "gameTitle: "$gameTitle","
 		#check if previous datefile exists, if not, set yesterday to 0
 #		mysql -u $dbuser -p$dbpass1234 -e "SELECT \`playedToday\` FROM \`76561198034881605\` WHERE \`appId\` = '286160' ORDER BY \`date\` DESC LIMIT 1" trackedtimes| grep -vi 'played'
 #		echo "mysql -u $dbuser -p$dbpass1234 -e \"SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' ORDER BY \`date\` DESC LIMIT 1\" trackedtimes| grep -vi 'played'"
@@ -94,30 +94,30 @@ while read line; do
 		###PLAYED THIS MONTH
 		echo "Start - 1"
 		if [ $currentDate == $joinedDate ]; then
-			echo "Step 1.5"
+			#echo "Step 1.5"
 			lastMonthTotal=$todayGameTime
 			playedTodayOnly=0
-			echo "Step 1.5: "$lastMonthTotal
+			#echo "Step 1.5: "$lastMonthTotal
 		elif [ $joinedMonth == $currentMonth ]; then
-			echo "Step 2"
+			#echo "Step 2"
 			lastMonthTotal=$(mysql -u$dbuser -p$dbpass -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$joinedDate'" trackedtimes|grep -vi played)
-			echo "Step 2: "$lastMonthTotal
+			#echo "Step 2: "$lastMonthTotal
 		else
-			echo "Step 3"
+			#echo "Step 3"
 			lastDayOfPreviousMonth=$(mysql -u $dbuser -p$dbpass -e "SELECT LAST_DAY('$currentDate' - INTERVAL 1 MONTH)" trackedtimes |grep -vi last);
 			echo "LAST DAY OF PREV:"$lastDayOfPreviousMonth" STEAMID:"$steamId" APPID:"$appId
 			lastMonthTotal=$(mysql -u $dbuser -p$dbpass -e "SELECT \`playedTotal\` FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` <= $lastDayOfPreviousMonth ORDER BY \`date\` DESC LIMIT 1" trackedtimes)
 		fi
-		echo "Step 4"
+		#echo "Step 4"
 #		if [ $(echo $lastMonthTotal|wc -l) -lt 1 ]; then
 		if [ -z $lastMonthTotal ]; then 
 			echo "Step 5"
 			lastMonthTotal=0
 		fi
-		echo "PTM start"
-		echo "LMT:::"$lastMonthTotal
+		#echo "PTM start"
+		#echo "LMT:::"$lastMonthTotal
 		playedThisMonth=$(echo "$todayGameTime - $lastMonthTotal"|bc)
-		echo "PTM:::: "$playedThisMonth
+		#echo "PTM:::: "$playedThisMonth
 #		filenamePrev="$pathToScript/users/$steamId/$appId/$previousDate"
 #                if [ -f "$filenamePrev" ]; then
 #                        yesterdayGameTime=$(cat $filenamePrev| awk -F";" '{ print $3 }')
@@ -127,10 +127,10 @@ while read line; do
 #		echo "$todayGameTime - $yesterdayGameTime"
 #		echo "$todayGameTime - $yesterdayGameTime" | bc
 		if [ $currentDate != $joinedDate ]; then
-			echo "Step 6.1"
+			#echo "Step 6.1"
 	                playedTodayOnly=$(echo "$todayGameTime - $yesterdayGameTime" | bc)
 		else
-			echo "Step 6.2"
+			#echo "Step 6.2"
 			playedTodayOnly=0
 		fi
 
@@ -139,17 +139,17 @@ while read line; do
                 #write playtime info to DB
                 #echo "$currentDate;$playedTodayOnly;$todayGameTime" > $pathToScript/users/$steamId/$appId/$currentDate
 #		echo "LINE:$line"
-		echo "TGT:$todayGameTime"
-		echo "YGT:$yesterdayGameTime"
+		#echo "TGT:$todayGameTime"
+		#echo "YGT:$yesterdayGameTime"
 #		echo "QR:$queryResult"
-		echo "PTO:$playedTodayOnly"
-		echo "PTM:$playedThisMonth"
-		echo "CD: $currentDate"
-		echo "DJ: "$(cat $pathToScript/users/$steamId/datejoined.txt)
+		#echo "PTO:$playedTodayOnly"
+		#echo "PTM:$playedThisMonth"
+		#echo "CD: $currentDate"
+		#echo "DJ: "$(cat $pathToScript/users/$steamId/datejoined.txt)
 		if [ $playedTodayOnly -gt 0 ] || ([ $todayGameTime -gt 0 ] && [ $currentDate == $joinedDate ]); then
-			echo "Step 7"
+			#echo "Step 7"
 			if [ $(mysql -u $dbuser -p$dbpass -e "SELECT * FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes | grep -vi 'id'| wc -l) -lt 1 ]; then
-				echo "Step 8 - "$currentDate
+				#echo "Step 8 - "$currentDate
 				mysql -u $dbuser -p$dbpass -e "INSERT INTO \`$steamId\` (\`date\`, \`appId\`, \`playedTotal\`, \`playedToday\`, \`playedThisMonth\`) VALUES ('$currentDate', '$appId', '$todayGameTime', '$playedTodayOnly', '$playedThisMonth'); " trackedtimes
 #			else
 #				 mysql -u $dbuser -p$dbpass1234 -e "DELETE FROM \`$steamId\` WHERE \`appId\` = '$appId' AND \`date\` = '$currentDate'" trackedtimes

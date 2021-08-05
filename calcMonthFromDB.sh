@@ -5,7 +5,7 @@
 # - steam64 ID as 1st parameter
 # - DB user as 2nd parameter
 # - DB pass as 3rd parameter
-currentDate=$(date +%Y-%m-%d)
+currentDate=$(date -d yesterday +%Y-%m-%d)
 previousDate=$(date -d "$currentDate -1 day" +%Y-%m-%d)
 pathToScript="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 steamId=$1
