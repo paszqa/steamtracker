@@ -127,8 +127,8 @@ for appId in $(mysql -u $dbuser -p$dbpass -e "SELECT DISTINCT \`appid\` FROM \`$
 	                       	tdclass="zero"
 	                fi
 			echo -n "<td class='$tdclass' title=''>" >> "$pathToWebDir/$steamName-$steamId.html"
-			timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
 			if [ $timePlayed -gt 0 ]; then
+				timePlayed=$(echo "$timePlayed 60" | awk '{printf "%.2f", $1 / $2}')
 				printf "%.2f" $timePlayed  >> "$pathToWebDir/$steamName-$steamId.html" #<?php echo round($timePlayed/60,2) ?>
 			fi
 			echo -n " </td>" >>  "$pathToWebDir/$steamName-$steamId.html"
